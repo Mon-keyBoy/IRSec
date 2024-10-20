@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Ensure the script is run as root
+#$EUID is getting the effective user ID of the current user running the script
+# -ne is not equlas
+# 0 is the user ID of root
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit
+fi
+
+# Update and upgrade the system
+echo "Updating and upgrading the system..."
+apt-get update && apt-get upgrade -y
+
+#ND-- what other packages do we want??
+# Install important tools 
+echo "Installing important packages..."
+apt-get install -y vim #add more packages needed and wanted
+
+#ND-- is that list complete and correct??
+# Reinstall essential system binaries
+# This ensures that any malicious binaries are replaced with clean versions from trusted sources
+echo "Reinstalling essential system binaries to ensure integrity..."
+
+essential_packages=( # List of essential packages to reinstall (can be customized based on competition needs)
+
+  "coreutils"         # Basic file, shell, and text manipulation utilities
+  "bash"              # The Bourne Again Shell
+  "sudo"              # Allows users to run commands as root
+  "openssl"           # Cryptographic toolkit
+  "openssh-server"    # SSH server for remote access
+  "gnupg"             # GnuPG for signing and encryption
+  "util-linux"        # System utilities (fdisk, mount, etc.)
+  "procps"            # Utilities related to processes (ps, top, etc.)
+  "net-tools"         # Network tools (ifconfig, netstat, etc.)
+  "iptables"          # Firewall management tool
+
+)
+
+for package in "${essential_packages[@]}"; do # reinstall each package, @ means all elements of the array, ${array[@]} is a common syntax used in Bash to loop over all items in an array.
+  echo "Reinstalling $package..."
+  apt-get install --reinstall -y "$package"
+done
+
+echo "Reinstallation of essential system binaries complete."
