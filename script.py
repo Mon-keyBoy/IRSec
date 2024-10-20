@@ -1,5 +1,6 @@
 """
 we're gonna play some Russian roulette
+sendto: redteam@ritsec.club
 """
 
 import os, random
