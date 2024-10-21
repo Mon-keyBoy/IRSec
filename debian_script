@@ -38,9 +38,20 @@ essential_packages=( # List of essential packages to reinstall (can be customize
 
 )
 
-for package in "${essential_packages[@]}"; do # reinstall each package, @ means all elements of the array, ${array[@]} is a common syntax used in Bash to loop over all items in an array.
-  echo "Reinstalling $package..."
-  apt-get install --reinstall -y "$package"
+for package in "${essential_packages[@]}"; do
+  echo "Reinstalling $package and its dependencies..."
+  # Reinstall the package and ensure configuration files are replaced
+  apt-get install --reinstall -o Dpkg::Options::="--force-confnew" -y "$package"
+  
+  # Reinstall the package’s dependencies as well
+  apt-get install --reinstall --download-only -y $(apt-cache depends "$package" | grep Depends | sed "s/.*ends:\ //" | tr '\n' ' ')
 done
 
 echo "Reinstallation of essential system binaries complete."
+
+
+# install webin, a convineint GUI for iptables and other things, this is for use during the comp not for initial hardening
+curl -o webmin-setup-repos.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repos.sh # Downloads the Webmin repo and saves it to a file 
+sh webmin-setup-repos.sh # Adds the repo to your system's package manager configuration.
+apt-get install webmin --install-recommends #install webmin
+
