@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#ND-- means the following code block is not done
+
 # Ensure the script is run as root
 #$EUID is getting the effective user ID of the current user running the script
 # -ne is not equlas
