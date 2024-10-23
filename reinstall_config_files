@@ -19,6 +19,7 @@ essential_packages=( # List of essential packages to reinstall (can be customize
     "procps"            # Utilities related to processes (ps, top, etc.)
     "net-tools"         # Network tools (ifconfig, netstat, etc.)
     "iptables"          # Firewall management tool
+    "passwd"            # Password management utility
 
 )
 
