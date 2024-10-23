@@ -1,1 +1,57 @@
 #!/bin/bash
+
+# Ensure the script is run as root
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root"
+    exit
+fi
+
+#ND-- list of packages to go over
+essential_packages=( # List of essential packages to reinstall (can be customized based on competition needs)
+
+    "coreutils"         # Basic file, shell, and text manipulation utilities
+    "bash"              # The Bourne Again Shell
+    "sudo"              # Allows users to run commands as root
+    "openssl"           # Cryptographic toolkit
+    "openssh-server"    # SSH server for remote access
+    "gnupg"             # GnuPG for signing and encryption
+    "util-linux"        # System utilities (fdisk, mount, etc.)
+    "procps"            # Utilities related to processes (ps, top, etc.)
+    "net-tools"         # Network tools (ifconfig, netstat, etc.)
+    "iptables"          # Firewall management tool
+
+)
+
+for package in "${essential_packages[@]}"; do
+    # Reinstall the configuration files without reinstalling the main package binary
+    echo "Reinstalling configuration files for $package..."
+    apt-get install --reinstall -o Dpkg::Options::="--force-confask" -y "$package"
+
+    # Reinstall the package’s dependencies as well
+    apt-get install --reinstall --download-only -y $(apt-cache depends "$package" | grep Depends | sed "s/.*ends:\ //" | tr '\n' ' ')
+
+echo "Reinstallation of configuration files and dependencies complete."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
