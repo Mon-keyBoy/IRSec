@@ -1,58 +1,61 @@
 #!/bin/bash
 
-# Ensure the script is run as root
-#$EUID is getting the effective user ID of the current user running the script
-# -ne is not equlas
-# 0 is the user ID of root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
-  exit
-fi
+initial_downloads_and_redownloads(){
+  # Ensure the script is run as root
+  #$EUID is getting the effective user ID of the current user running the script
+  # -ne is not equlas
+  # 0 is the user ID of root
+  if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root"
+    exit
+  fi
 
-# Update and upgrade the system
-echo "Updating and upgrading the system..."
-apt-get update && apt-get upgrade -y
+  # Update and upgrade the system
+  echo "Updating and upgrading the system..."
+  apt-get update && apt-get upgrade -y
 
-#ND-- what other packages do we want??
-# Install important tools 
-echo "Installing important packages..."
-apt-get install -y vim #add more packages needed and wanted
+  #ND-- what other packages do we want??
+  # Install important tools 
+  echo "Installing important packages..."
+  apt-get install -y vim #add more packages needed and wanted
 
-#ND-- is that list complete and correct??
-# Reinstall essential system binaries
-# This ensures that any malicious binaries are replaced with clean versions from trusted sources
-echo "Reinstalling essential system binaries to ensure integrity..."
+  #ND-- is that list complete and correct??
+  # Reinstall essential system binaries
+  # This ensures that any malicious binaries are replaced with clean versions from trusted sources
+  echo "Reinstalling essential system binaries to ensure integrity..."
 
-essential_packages=( # List of essential packages to reinstall (can be customized based on competition needs)
+  essential_packages=( # List of essential packages to reinstall (can be customized based on competition needs)
 
-  "coreutils"         # Basic file, shell, and text manipulation utilities
-  "bash"              # The Bourne Again Shell
-  "sudo"              # Allows users to run commands as root
-  "openssl"           # Cryptographic toolkit
-  "openssh-server"    # SSH server for remote access
-  "gnupg"             # GnuPG for signing and encryption
-  "util-linux"        # System utilities (fdisk, mount, etc.)
-  "procps"            # Utilities related to processes (ps, top, etc.)
-  "net-tools"         # Network tools (ifconfig, netstat, etc.)
-  "iptables"          # Firewall management tool
+    "coreutils"         # Basic file, shell, and text manipulation utilities
+    "bash"              # The Bourne Again Shell
+    "sudo"              # Allows users to run commands as root
+    "openssl"           # Cryptographic toolkit
+    "openssh-server"    # SSH server for remote access
+    "gnupg"             # GnuPG for signing and encryption
+    "util-linux"        # System utilities (fdisk, mount, etc.)
+    "procps"            # Utilities related to processes (ps, top, etc.)
+    "net-tools"         # Network tools (ifconfig, netstat, etc.)
+    "iptables"          # Firewall management tool
 
-)
+  )
 
-for package in "${essential_packages[@]}"; do
-  echo "Reinstalling $package and its dependencies..."
-  # Reinstall the package and ensure configuration files are replaced
-  apt-get install --reinstall -o Dpkg::Options::="--force-confnew" -y "$package"
-  
-  # Reinstall the package’s dependencies as well
-  apt-get install --reinstall --download-only -y $(apt-cache depends "$package" | grep Depends | sed "s/.*ends:\ //" | tr '\n' ' ')
-done
+  for package in "${essential_packages[@]}"; do
+    echo "Reinstalling $package and its dependencies..."
+    # Reinstall the package 
+    apt-get install --reinstall -y "$package"
 
-echo "Reinstallation of essential system binaries complete."
+  done
+
+  echo "Reinstallation of essential system binaries complete."
 
 
-# install webin, a convineint GUI for iptables and other things, this is for use during the comp not for initial hardening
-curl -o webmin-setup-repos.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repos.sh # Downloads the Webmin repo and saves it to a file 
-sh webmin-setup-repos.sh # Adds the repo to your system's package manager configuration.
-apt-get install webmin --install-recommends #install webmin
+  # install webin, a convineint GUI for iptables and other things, this is for use during the comp not for initial hardening
+  curl -o webmin-setup-repos.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repos.sh # Downloads the Webmin repo and saves it to a file 
+  sh webmin-setup-repos.sh # Adds the repo to your system's package manager configuration.
+  apt-get install webmin --install-recommends #install webmin
+}
 
-#commit to github test (delete this line later)
+
+
+#call functions
+initial_downloads_and_redownloads
