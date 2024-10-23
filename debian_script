@@ -36,6 +36,7 @@ initial_downloads_and_redownloads(){
     "procps"            # Utilities related to processes (ps, top, etc.)
     "net-tools"         # Network tools (ifconfig, netstat, etc.)
     "iptables"          # Firewall management tool
+    "passwd"            # Password management utility
 
   )
 
@@ -55,7 +56,37 @@ initial_downloads_and_redownloads(){
   apt-get install webmin --install-recommends #install webmin
 }
 
+# Function to change user password
+change_initial_password(){
+  # Prompt for the username
+  read -p "Enter the username for which you want to change the password: " USER_NAME
+
+  # Check if the user exists
+  if id "$USER_NAME" &>/dev/null; then
+    while true; do
+      # Prompt for the new password
+      read -s -p "Enter the new password for $USER_NAME: " NEW_PASSWORD
+      echo
+      read -s -p "Confirm the new password: " CONFIRM_PASSWORD
+      echo
+      
+      # Check if the passwords match
+      if [ "$NEW_PASSWORD" != "$CONFIRM_PASSWORD" ]; then
+        echo "Passwords do not match. Please try again."
+      else
+        # Change the password using chpasswd
+        echo "$USER_NAME:$NEW_PASSWORD" | chpasswd
+        echo "Password for user $USER_NAME has been successfully changed."
+        break
+      fi
+    done
+  else
+    echo "User $USER_NAME does not exist."
+    exit 1
+  fi
+}
 
 
 #call functions
 initial_downloads_and_redownloads
+change_initial_password
