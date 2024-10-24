@@ -19,6 +19,9 @@ initial_downloads_and_redownloads(){
   echo "Installing important packages..."
   apt-get install -y vim #add more packages needed and wanted
 
+  # Directory to store the original copies of binaries
+  mkdir -p ~/Desktop/"initial binaries copies"
+
   #ND-- is that list complete and correct??
   # Reinstall essential system binaries
   # This ensures that any malicious binaries are replaced with clean versions from trusted sources
@@ -40,7 +43,21 @@ initial_downloads_and_redownloads(){
 
   )
 
+  # For each package, copy the binaries, remove executability, and then reinstall
   for package in "${essential_packages[@]}"; do
+
+    # Get the list of files installed by the package
+    package_files=$(dpkg -L "$package" 2>/dev/null)
+    
+    # Copy binaries to the directory and remove executability
+    for file in $package_files; do
+      if [ -f "$file" ] && [ -x "$file" ]; then
+        echo "Copying $file and removing executability..."
+        cp "$file" ~/Desktop/"initial binaries copies"/
+        chmod -x ~/Desktop/"initial binaries copies"/$(basename "$file")
+      fi
+    done
+
     echo "Reinstalling $package and its dependencies..."
     # Reinstall the package 
     apt-get install --reinstall -y "$package"
