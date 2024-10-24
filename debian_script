@@ -19,8 +19,20 @@ initial_downloads_and_redownloads(){
   echo "Installing important packages..."
   apt-get install -y vim #add more packages needed and wanted
 
-  # Directory to store the original copies of binaries
-  mkdir initial_binaries_copies ~/Desktop/
+  # Prompt for the username to determine the file path
+  read -p "Enter the username for whom you want to create the binary copy directory in: " USER_NAME
+
+  # Verify if the user exists
+  if id "$USER_NAME" &>/dev/null; then
+    USER_HOME=$(eval echo "~$USER_NAME") # Get the user's home directory
+    echo "User's home directory: $USER_HOME"
+  else
+    echo "User $USER_NAME does not exist. Exiting."
+    exit 1
+  fi
+
+  # Create the directory to store the original copies of binaries on the provided user's Desktop
+  mkdir -p "$USER_HOME/Desktop/initial_binaries_copies"
 
   #ND-- is that list complete and correct??
   # Reinstall essential system binaries
