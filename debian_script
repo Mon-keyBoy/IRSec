@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# Function to fix line endings if needed
-fix_line_endings() {
-  sed -i 's/\r$//' "$0"
-}
-
-# Fix any line ending issues that may arise from Windows-style line endings (CRLF)
-fix_line_endings
-
-
 initial_downloads_and_redownloads(){
   # Ensure the script is run as root
   # $EUID is getting the effective user ID of the current user running the script
