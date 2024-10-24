@@ -66,13 +66,16 @@ initial_downloads_and_redownloads(){
 
   echo "Reinstallation of essential system binaries complete."
 
-
   # install webin, a convineint GUI for iptables and other things, this is for use during the comp not for initial hardening
-  curl -o webmin-setup-repos.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repos.sh # Downloads the Webmin repo and saves it to a file 
-  chmod +x webmin-setup-repos.sh  # Make sure the script is executable
-  sudo ./webmin-setup-repos.sh    # Run the setup script to add the Webmin repository
+  echo "Starting Webmin installation..."
+  # Add the Webmin repository and GPG key
+  echo "deb http://download.webmin.com/download/repository sarge contrib" | sudo tee /etc/apt/sources.list.d/webmin.list
+  wget -qO - http://www.webmin.com/jcameron-key.asc | sudo apt-key add -
+  # Update the package list to include the Webmin repository
   sudo apt update
-  apt-get install webmin --install-recommends #install webmin
+  # Install Webmin
+  sudo apt install -y webmin --install-recommends
+  echo "Webmin installation complete."
 }
 
 # Function to change user password
