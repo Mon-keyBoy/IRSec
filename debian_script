@@ -1,13 +1,16 @@
 #!/bin/bash
 
 initial_downloads_and_redownloads(){
-  # Ensure the script is run as root
-  # $EUID is getting the effective user ID of the current user running the script
-  # -ne is not equlas
-  # 0 is the user ID of root
+ # Check if the script is being run as root or with sudo
   if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root"
+    echo "Please run the script with sudo or as root."
     exit
+  fi
+
+  # Check if the script was run using sudo
+  if [ -z "$SUDO_USER" ]; then
+    echo "The script must be run with sudo, not directly as root."
+    exit 1
   fi
 
   # Update and upgrade the system
@@ -19,25 +22,8 @@ initial_downloads_and_redownloads(){
   echo "Installing important packages..."
   apt-get install -y vim #add more packages needed and wanted
 
-  # Prompt for the username to determine the file path
-  echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-  # Prompt for the username to determine the file path
-  read -p "Enter the username for whom you want to create the binary copy directory in: " DOWNLOAD_USER
-
-  # Debug: Check if the DOWNLOAD_USER was captured correctly
-  echo "User provided for directory creation: $DOWNLOAD_USER"
-
-  # Verify if the user exists
-  if id "$DOWNLOAD_USER" &>/dev/null; then
-    USER_HOME=$(eval echo "~$DOWNLOAD_USER") # Get the user's home directory
-    echo "User's home directory: $USER_HOME"
-  else
-    echo "User $DOWNLOAD_USER does not exist. Exiting."
-    exit 1
-  fi
-
   # Create the directory to store the original copies of binaries on the provided user's Desktop
-  mkdir -p "$USER_HOME/Desktop/initial_binaries_copies"
+  mkdir -p ~/Desktop/initial_binaries_copies
 
   #ND-- is that list complete and correct??
   # Reinstall essential system binaries
