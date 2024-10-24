@@ -3,14 +3,17 @@
 initial_downloads_and_redownloads(){
  # Check if the script is being run as root or with sudo
   if [ "$EUID" -ne 0 ]; then
-    echo "Please run the script with sudo or as root."
+    echo "The script must be run with sudo, not directly as root."
     exit
   fi
 
-  # Check if the script was run using sudo
+  # Check if the script is being run with sudo
   if [ -z "$SUDO_USER" ]; then
-    echo "The script must be run with sudo, not directly as root."
+    echo "This script must be run with sudo."
     exit 1
+  else
+    echo "Script is running with sudo by user: $SUDO_USER"
+    # You can place the rest of your script here
   fi
 
   # Update and upgrade the system
