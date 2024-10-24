@@ -20,6 +20,7 @@ initial_downloads_and_redownloads(){
   apt-get install -y vim #add more packages needed and wanted
 
   # Prompt for the username to determine the file path
+  echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
   read -p "Enter the username for whom you want to create the binary copy directory in: " USER_NAME
 
   # Verify if the user exists
