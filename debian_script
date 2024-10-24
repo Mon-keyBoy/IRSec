@@ -21,14 +21,18 @@ initial_downloads_and_redownloads(){
 
   # Prompt for the username to determine the file path
   echo "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-  read -p "Enter the username for whom you want to create the binary copy directory in: " USER_NAME
+  # Prompt for the username to determine the file path
+  read -p "Enter the username for whom you want to create the binary copy directory in: " DOWNLOAD_USER
+
+  # Debug: Check if the DOWNLOAD_USER was captured correctly
+  echo "User provided for directory creation: $DOWNLOAD_USER"
 
   # Verify if the user exists
-  if id "$USER_NAME" &>/dev/null; then
-    USER_HOME=$(eval echo "~$USER_NAME") # Get the user's home directory
+  if id "$DOWNLOAD_USER" &>/dev/null; then
+    USER_HOME=$(eval echo "~$DOWNLOAD_USER") # Get the user's home directory
     echo "User's home directory: $USER_HOME"
   else
-    echo "User $USER_NAME does not exist. Exiting."
+    echo "User $DOWNLOAD_USER does not exist. Exiting."
     exit 1
   fi
 
