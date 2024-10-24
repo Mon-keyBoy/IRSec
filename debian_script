@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Ensure a user was provided as an argument
+if [ -z "$1" ]; then
+  echo "No user provided. Please provide a username as a parameter."
+  echo "Usage: sudo ./your_script.sh username"
+  exit 1
+fi
+
+  # Set the user to the provided parameter
+USER_NAME="$1"
+
 initial_downloads_and_redownloads(){
  # Check if the script is being run as root or with sudo
   if [ "$EUID" -ne 0 ]; then
@@ -15,16 +25,6 @@ initial_downloads_and_redownloads(){
     echo "Script is running with sudo by user: $SUDO_USER"
     # You can place the rest of your script here
   fi
-
-  # Ensure a user was provided as an argument
-  if [ -z "$1" ]; then
-    echo "No user provided. Please provide a username as a parameter."
-    echo "Usage: sudo ./your_script.sh username"
-    exit 1
-  fi
-
-    # Set the user to the provided parameter
-  USER_NAME="$1"
 
   # Verify if the user exists
   if ! id "$USER_NAME" &>/dev/null; then
