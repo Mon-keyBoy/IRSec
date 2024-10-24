@@ -103,7 +103,7 @@ initial_downloads_and_redownloads(){
   # Install Webmin
   sudo apt install -y webmin --install-recommends
   echo "Webmin installation complete."
-  rm -rf debain_script
+  rm -rf debain_script.sh
 }
 
 
