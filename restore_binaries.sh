@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Be in desktop and run with sudo
+
 # Ensure a user was provided as an argument
 if [ -z "$1" ]; then
   echo "No user provided. Please provide a username as a parameter."
