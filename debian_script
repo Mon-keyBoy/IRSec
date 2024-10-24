@@ -20,7 +20,7 @@ initial_downloads_and_redownloads(){
   apt-get install -y vim #add more packages needed and wanted
 
   # Directory to store the original copies of binaries
-  mkdir -p ~/Desktop/"initial binaries copies"
+  mkdir ~/Desktop/initial_binaries_copies
 
   #ND-- is that list complete and correct??
   # Reinstall essential system binaries
@@ -53,8 +53,8 @@ initial_downloads_and_redownloads(){
     for file in $package_files; do
       if [ -f "$file" ] && [ -x "$file" ]; then
         echo "Copying $file and removing executability..."
-        cp "$file" ~/Desktop/"initial binaries copies"/
-        chmod -x ~/Desktop/"initial binaries copies"/$(basename "$file")
+        cp "$file" ~/Desktop/initial_binaries_copies/
+        chmod -x ~/Desktop/initial_binaries_copies/$(basename "$file")
       fi
     done
 
@@ -68,8 +68,11 @@ initial_downloads_and_redownloads(){
 
 
   # install webin, a convineint GUI for iptables and other things, this is for use during the comp not for initial hardening
+  echo "fuck"
   curl -o webmin-setup-repos.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repos.sh # Downloads the Webmin repo and saves it to a file 
+  echo "shit"
   sh webmin-setup-repos.sh # Adds the repo to your system's package manager configuration.
+  echo "bitch"
   apt-get install webmin --install-recommends #install webmin
 }
 
