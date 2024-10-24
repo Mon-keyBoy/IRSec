@@ -44,7 +44,7 @@ initial_downloads_and_redownloads(){
   apt-get install -y vim #add more packages needed and wanted
 
   # Create the directory to store the original copies of binaries on the provided user's Desktop
-  mkdir -p ~/Desktop/initial_binaries_copies
+  mkdir -p /home/$USER_NAME/Desktop/initial_binaries_copies
 
   #ND-- is that list complete and correct??
   # Reinstall essential system binaries
