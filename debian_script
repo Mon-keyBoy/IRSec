@@ -77,8 +77,8 @@ initial_downloads_and_redownloads(){
     for file in $package_files; do
       if [ -f "$file" ] && [ -x "$file" ]; then
         echo "Copying $file and removing executability..."
-        cp "$file" ~/Desktop/initial_binaries_copies/
-        chmod -x ~/Desktop/initial_binaries_copies/$(basename "$file")
+        cp "$file" /home/$USER_NAME/Desktop/initial_binaries_copies
+        chmod -x /home/$USER_NAME/Desktop/initial_binaries_copies/$(basename "$file")
       fi
     done
 
