@@ -16,6 +16,24 @@ initial_downloads_and_redownloads(){
     # You can place the rest of your script here
   fi
 
+  # Ensure a user was provided as an argument
+  if [ -z "$1" ]; then
+    echo "No user provided. Please provide a username as a parameter."
+    echo "Usage: sudo ./your_script.sh username"
+    exit 1
+  fi
+
+    # Set the user to the provided parameter
+  USER_NAME="$1"
+
+  # Verify if the user exists
+  if ! id "$USER_NAME" &>/dev/null; then
+    echo "User $USER_NAME does not exist. Exiting."
+    exit 1
+  fi
+
+  echo "Script is running with sudo by user: $SUDO_USER for target user: $USER_NAME"
+
   # Update and upgrade the system
   echo "Updating and upgrading the system..."
   apt-get update && apt-get upgrade -y
@@ -86,8 +104,13 @@ initial_downloads_and_redownloads(){
 
 # Function to change user password
 change_initial_password(){
-  # Prompt for the username
-  read -p "Enter the username for which you want to change the password: " USER_NAME
+ # Check if a user is provided
+  if [ -z "$1" ]; then
+    echo "No user provided. Please provide a username as a parameter."
+    exit 1
+  fi
+
+  USER_NAME="$1"
 
   # Check if the user exists
   if id "$USER_NAME" &>/dev/null; then
