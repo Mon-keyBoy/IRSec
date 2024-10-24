@@ -73,11 +73,14 @@ initial_downloads_and_redownloads(){
     # Get the list of files installed by the package
     package_files=$(dpkg -L "$package" 2>/dev/null)
     
+    # Create a subdirectory for each package
+    mkdir -p /home/$USER_NAME/Desktop/initial_binaries_copies/"$package"
+
     # Copy binaries to the directory and remove executability
     for file in $package_files; do
       if [ -f "$file" ] && [ -x "$file" ]; then
         echo "Copying $file and removing executability..."
-        cp "$file" /home/$USER_NAME/Desktop/initial_binaries_copies
+        cp "$file" /home/$USER_NAME/Desktop/initial_binaries_copies/"$package"
         chmod -x /home/$USER_NAME/Desktop/initial_binaries_copies/$(basename "$file")
       fi
     done
@@ -100,44 +103,10 @@ initial_downloads_and_redownloads(){
   # Install Webmin
   sudo apt install -y webmin --install-recommends
   echo "Webmin installation complete."
-}
-
-# Function to change user password
-change_initial_password(){
- # Check if a user is provided
-  if [ -z "$1" ]; then
-    echo "No user provided. Please provide a username as a parameter."
-    exit 1
-  fi
-
-  USER_NAME="$1"
-
-  # Check if the user exists
-  if id "$USER_NAME" &>/dev/null; then
-    while true; do
-      # Prompt for the new password
-      read -s -p "Enter the new password for $USER_NAME: " NEW_PASSWORD
-      echo
-      read -s -p "Confirm the new password: " CONFIRM_PASSWORD
-      echo
-      
-      # Check if the passwords match
-      if [ "$NEW_PASSWORD" != "$CONFIRM_PASSWORD" ]; then
-        echo "Passwords do not match. Please try again."
-      else
-        # Change the password using chpasswd
-        echo "$USER_NAME:$NEW_PASSWORD" | chpasswd
-        echo "Password for user $USER_NAME has been successfully changed."
-        break
-      fi
-    done
-  else
-    echo "User $USER_NAME does not exist."
-    exit 1
-  fi
+  rm -rf debain_script
 }
 
 
-#call functions
+#call function
 initial_downloads_and_redownloads
-change_initial_password
+
