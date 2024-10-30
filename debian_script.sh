@@ -1,136 +1,111 @@
 #!/bin/bash
 
-# Ensure a bot token and chat ID are provided as arguments
-if [ -z "$1" ] || [ -z "$2" ]; then
-  echo "Usage: sudo ./your_script.sh <bot_token> <chat_id>"
+# Ensure a user was provided as an argument
+if [ -z "$1" ]; then
+  echo "No user provided. Please provide a username as a parameter."
+  echo "Usage: sudo ./your_script.sh username"
   exit 1
 fi
 
-# Set the bot token and chat ID from provided parameters
-BOT_TOKEN="$1"
-CHAT_ID="$2"
+  # Set the user to the provided parameter
+USER_NAME="$1"
 
-# Update the system and install necessary packages
-sudo apt-get update && sudo apt-get install -y curl wget git prometheus prometheus-node-exporter auditd grafana alertmanager
+initial_downloads_and_redownloads(){
+ # Check if the script is being run as root or with sudo
+  if [ "$EUID" -ne 0 ]; then
+    echo "The script must be run with sudo, not directly as root."
+    exit
+  fi
 
-# Ensure Prometheus is enabled and running
-sudo systemctl enable prometheus
-sudo systemctl start prometheus
+  # Check if the script is being run with sudo
+  if [ -z "$SUDO_USER" ]; then
+    echo "This script must be run with sudo."
+    exit 1
+  else
+    echo "Script is running with sudo by user: $SUDO_USER"
+    # You can place the rest of your script here
+  fi
 
-# Ensure Node Exporter is enabled and running
-sudo systemctl enable prometheus-node-exporter
-sudo systemctl start prometheus-node-exporter
+  # Verify if the user exists
+  if ! id "$USER_NAME" &>/dev/null; then
+    echo "User $USER_NAME does not exist. Exiting."
+    exit 1
+  fi
 
-# Configure Prometheus to scrape Node Exporter and Loki
-echo "Configuring Prometheus..."
-cat <<EOF | sudo tee /etc/prometheus/prometheus.yml
-global:
-  scrape_interval: 15s
+  echo "Script is running with sudo by user: $SUDO_USER for target user: $USER_NAME"
 
-scrape_configs:
-  - job_name: 'node_exporter'
-    static_configs:
-      - targets: ['localhost:9100']
+  # Update and upgrade the system
+  echo "Updating and upgrading the system..."
+  apt-get update && apt-get upgrade -y
 
-  - job_name: 'loki'
-    static_configs:
-      - targets: ['localhost:3100']
-EOF
+  #ND-- what other packages do we want??
+  # Install important tools 
+  echo "Installing important packages..."
+  apt-get install -y vim #add more packages needed and wanted
 
-# Restart Prometheus to apply new configuration
-sudo systemctl restart prometheus
+  # Create the directory to store the original copies of binaries on the provided user's Desktop
+  mkdir -p /home/$USER_NAME/Desktop/initial_binaries_copies
 
-# Ensure Auditd is enabled and running
-sudo systemctl enable auditd
-sudo systemctl start auditd
+  #ND-- is that list complete and correct??
+  # Reinstall essential system binaries
+  # This ensures that any malicious binaries are replaced with clean versions from trusted sources
+  echo "Reinstalling essential system binaries to ensure integrity..."
 
-# Configure Auditd rules to monitor user creation, SSH changes, sudoers, cron jobs
-cat <<EOF | sudo tee /etc/audit/rules.d/audit.rules
--w /etc/passwd -p wa -k user_creation
--w /etc/ssh/sshd_config -p wa -k ssh_config_change
--w /etc/sudoers -p wa -k sudo_priv_escalation
--w /etc/crontab -p wa -k cron_jobs
-EOF
+  essential_packages=( # List of essential packages to reinstall (can be customized based on competition needs)
 
-# Restart Auditd to apply rules
-sudo systemctl restart auditd
+    "coreutils"         # Basic file, shell, and text manipulation utilities
+    "bash"              # The Bourne Again Shell
+    "sudo"              # Allows users to run commands as root
+    "openssl"           # Cryptographic toolkit
+    "openssh-server"    # SSH server for remote access
+    "gnupg"             # GnuPG for signing and encryption
+    "util-linux"        # System utilities (fdisk, mount, etc.)
+    "procps"            # Utilities related to processes (ps, top, etc.)
+    "net-tools"         # Network tools (ifconfig, netstat, etc.)
+    "iptables"          # Firewall management tool
+    "passwd"            # Password management utility
 
-# Configure Grafana Provisioning for Dashboards and Alerts
-mkdir -p /etc/grafana/provisioning/dashboards
+  )
 
-# Create Grafana provisioning file
-cat <<EOF | sudo tee /etc/grafana/provisioning/dashboards/default.yaml
-apiVersion: 1
+  # For each package, copy the binaries, remove executability, and then reinstall
+  for package in "${essential_packages[@]}"; do
 
-providers:
-  - name: 'Default'
-    orgId: 1
-    folder: ''
-    type: file
-    updateIntervalSeconds: 10
-    options:
-      path: /var/lib/grafana/dashboards
-EOF
+    # Get the list of files installed by the package
+    package_files=$(dpkg -L "$package" 2>/dev/null)
+    
+    # Create a subdirectory for each package
+    mkdir -p /home/$USER_NAME/Desktop/initial_binaries_copies/"$package"
 
-# Add dashboard and alert rules (e.g., CPU usage, SSH failures, etc.)
-mkdir -p /var/lib/grafana/dashboards
+    # Copy binaries to the directory and remove executability
+    for file in $package_files; do
+      if [ -f "$file" ] && [ -x "$file" ]; then
+        echo "Copying $file and removing executability..."
+        cp "$file" /home/$USER_NAME/Desktop/initial_binaries_copies/"$package"
+        chmod a-x,a+r /home/$USER_NAME/Desktop/initial_binaries_copies/$(basename "$file")
+      fi
+    done
 
-cat <<EOF | sudo tee /var/lib/grafana/dashboards/alerts.json
-{
-  "dashboard": {
-    "panels": [
-      {
-        "type": "graph",
-        "title": "SSH Login Attempts",
-        "targets": [
-          {
-            "expr": "increase(sshd_failed_logins_total[1m]) > 3",
-            "legendFormat": "SSH Login Failures"
-          }
-        ]
-      },
-      {
-        "type": "graph",
-        "title": "CPU Usage",
-        "targets": [
-          {
-            "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{job='node',mode='idle'}[5m])) * 100)",
-            "legendFormat": "CPU Usage (%)"
-          }
-        ]
-      }
-    ]
-  }
+    echo "Reinstalling $package and its dependencies..."
+    # Reinstall the package 
+    apt-get install --reinstall -y "$package"
+
+  done
+
+  echo "Reinstallation of essential system binaries complete."
+
+  # install webin, a convineint GUI for iptables and other things, this is for use during the comp not for initial hardening
+  echo "Starting Webmin installation..."
+  # Add the Webmin repository and GPG key
+  echo "deb http://download.webmin.com/download/repository sarge contrib" | sudo tee /etc/apt/sources.list.d/webmin.list
+  wget -qO - http://www.webmin.com/jcameron-key.asc | sudo apt-key add -
+  # Update the package list to include the Webmin repository
+  sudo apt update
+  # Install Webmin
+  sudo apt install -y webmin --install-recommends
+  echo "Webmin installation complete."
+  rm debian_script.sh
 }
-EOF
 
-# Restart Grafana
-sudo systemctl restart grafana-server
 
-# Install and configure Alertmanager
-echo "Installing and configuring Alertmanager..."
-cat <<EOF | sudo tee /etc/alertmanager/alertmanager.yml
-global:
-  resolve_timeout: 5m
-
-route:
-  group_by: ['alertname']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 3h
-  receiver: 'telegram'
-
-receivers:
-  - name: 'telegram'
-    telegram_configs:
-    - bot_token: '${BOT_TOKEN}'
-      chat_id: '${CHAT_ID}'
-      send_resolved: true
-EOF
-
-# Ensure Alertmanager is enabled and running
-sudo systemctl enable alertmanager
-sudo systemctl start alertmanager
-
-# Final message
-echo "Monitoring setup is complete! Prometheus, Node Exporter, Auditd, Grafana, and Alertmanager are configured and running."
+#call function
+initial_downloads_and_redownloads
