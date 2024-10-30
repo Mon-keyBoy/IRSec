@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Ensure a bot token and chat ID are provided as arguments
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Usage: sudo ./your_script.sh <bot_token> <chat_id>"
+  exit 1
+fi
+
+# Set the bot token and chat ID from provided parameters
+BOT_TOKEN="$1"
+CHAT_ID="$2"
+
 # Update the system and install necessary packages
 sudo apt-get update && sudo apt-get install -y curl wget git prometheus prometheus-node-exporter auditd grafana alertmanager
 
@@ -113,8 +123,8 @@ route:
 receivers:
   - name: 'telegram'
     telegram_configs:
-    - bot_token: '7597424635:AAFAq1QiWNVf6wEdEuAWEYq2Qz4NDAJVG_0'
-      chat_id: '7678572447'
+    - bot_token: '${BOT_TOKEN}'
+      chat_id: '${CHAT_ID}'
       send_resolved: true
 EOF
 
