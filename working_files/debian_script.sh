@@ -76,7 +76,7 @@ initial_downloads_and_redownloads(){
     # Create a subdirectory for each package
     mkdir -p /home/$USER_NAME/Desktop/initial_binaries_copies/"$package"
 
-    # Copy binaries to the directory and remove executability
+    # Copy binaries to the directory and remove executability BEFORE reinstalling
     for file in $package_files; do
       if [ -f "$file" ] && [ -x "$file" ]; then
         echo "Copying $file and removing executability..."
