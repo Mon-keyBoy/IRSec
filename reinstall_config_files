@@ -67,6 +67,8 @@ for package in "${essential_packages[@]}"; do
     echo "Reinstallation of configuration files and dependencies complete for $package."
 done
 
+cd ~/Desktop/
+rm reinstall_config_files
 echo "Reinstallation of configuration files and dependencies complete."
 
 
