@@ -46,7 +46,7 @@ for package in "${essential_packages[@]}"; do
     for config_file in $config_files; do
         if [ -f "$config_file" ]; then
             echo "Copying $config_file to /home/$USER_NAME/Desktop/binary_configs_cp_v1"
-            cp --parents "$config_file" /home/$USER_NAME/Desktopp/binary_configs_cp_v1
+            cp --parents "$config_file" /home/$USER_NAME/Desktop/binary_configs_cp_v1
             chmod -x /home/$USER_NAME/Desktop/binary_configs_cp_v1/"$(basename "$config_file")"
         fi
     done
