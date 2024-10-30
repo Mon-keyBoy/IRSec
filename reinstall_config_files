@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Ensure a user was provided as an argument
+if [ -z "$1" ]; then
+  echo "No user provided. Please provide a username as a parameter."
+  echo "Usage: sudo ./your_script.sh username"
+  exit 1
+fi
+
+  # Set the user to the provided parameter
+USER_NAME="$1"
+
 # Ensure the script is run as root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
@@ -24,8 +34,8 @@ essential_packages=( # List of essential packages to reinstall (can be customize
 )
 
 # Create directories to store copies of config files and dependencies
-mkdir ~/Desktop/binary_configs_cp_v1
-mkdir ~/Desktop/binary_dependencies_cp_v1
+mkdir -p /home/$USER_NAME/Desktop/binary_configs_cp_v1
+mkdir -p /home/$USER_NAME/Desktop/binary_dependencies_cp_v1
 
 for package in "${essential_packages[@]}"; do
     echo "Processing package: $package"
@@ -35,9 +45,9 @@ for package in "${essential_packages[@]}"; do
     config_files=$(dpkg-query -L "$package" 2>/dev/null | grep -E '/etc|/usr/share')  # Filter for common config locations
     for config_file in $config_files; do
         if [ -f "$config_file" ]; then
-            echo "Copying $config_file to ~/Desktop/binary_configs_cp_v1"
-            cp --parents "$config_file" ~/Desktop/binary_configs_cp_v1
-            chmod -x ~/Desktop/binary_configs_cp_v1/"$(basename "$config_file")"
+            echo "Copying $config_file to /home/$USER_NAME/Desktop/binary_configs_cp_v1"
+            cp --parents "$config_file" /home/$USER_NAME/Desktopp/binary_configs_cp_v1
+            chmod -x /home/$USER_NAME/Desktop/binary_configs_cp_v1/"$(basename "$config_file")"
         fi
     done
 
@@ -51,7 +61,7 @@ for package in "${essential_packages[@]}"; do
             if [ -f "$dep_file" ]; then
                 echo "Copying $dep_file to ~/Desktop/binary_dependencies_cp_v1"
                 cp --parents "$dep_file" ~/Desktop/binary_dependencies_cp_v1
-                chmod -x ~/Desktop/binary_dependencies_cp_v1/"$(basename "$dep_file")"
+                chmod -x /home/$USER_NAME/Desktop/binary_dependencies_cp_v1/"$(basename "$dep_file")"
             fi
         done
     done
@@ -67,7 +77,7 @@ for package in "${essential_packages[@]}"; do
     echo "Reinstallation of configuration files and dependencies complete for $package."
 done
 
-cd ~/Desktop/
+cd /home/$USER_NAME/DesktopDesktop/
 rm reinstall_config_files
 echo "Reinstallation of configuration files and dependencies complete."
 
