@@ -24,8 +24,8 @@ essential_packages=( # List of essential packages to reinstall (can be customize
 )
 
 # Create directories to store copies of config files and dependencies
-mkdir -p ~/Desktop/binary_configs_cp_v1
-mkdir -p ~/Desktop/binary_dependencies_cp_v1
+mkdir ~/Desktop/binary_configs_cp_v1
+mkdir ~/Desktop/binary_dependencies_cp_v1
 
 for package in "${essential_packages[@]}"; do
     echo "Processing package: $package"
