@@ -12,13 +12,15 @@ CHAT_ID="$2"
 
 # Update the system and install necessary packages
 sudo apt-get update && sudo apt-get install -y curl wget git prometheus prometheus-node-exporter auditd 
-#get grafana
+# get grafana
 sudo apt-get install -y software-properties-common
 sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
-sudo wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+wget -q -O /usr/share/keyrings/grafana-archive-keyring.gpg https://packages.grafana.com/gpg.key
+echo "deb [signed-by=/usr/share/keyrings/grafana-archive-keyring.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list > /dev/null
 sudo apt-get update
 sudo apt-get install -y grafana
-sudo /bin/systemctl start grafana-server
+sudo systemctl start grafana-server
+
 # get alertmanager
 mkdir -p ~/alertmanager && cd ~/alertmanager
 wget https://github.com/prometheus/alertmanager/releases/download/v0.26.0/alertmanager-0.26.0.linux-amd64.tar.gz 
@@ -26,15 +28,28 @@ tar -xvf alertmanager-0.26.0.linux-amd64.tar.gz
 sudo mv alertmanager-0.26.0.linux-amd64/alertmanager /usr/local/bin/
 sudo mv alertmanager-0.26.0.linux-amd64/amtool /usr/local/bin/
 
-# Ensure Prometheus is enabled and running
-sudo systemctl enable prometheus
-sudo systemctl start prometheus
+# Create Alertmanager configuration file before starting the service
+sudo mkdir -p /etc/alertmanager
+cat <<EOF | sudo tee /etc/alertmanager/alertmanager.yml
+global:
+  resolve_timeout: 5m
 
-# Ensure Node Exporter is enabled and running
-sudo systemctl enable prometheus-node-exporter
-sudo systemctl start prometheus-node-exporter
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+  receiver: 'telegram'
 
-# configure alertmanager
+receivers:
+  - name: 'telegram'
+    telegram_configs:
+    - bot_token: '${BOT_TOKEN}'
+      chat_id: '${CHAT_ID}'
+      send_resolved: true
+EOF
+
+# Create Alertmanager service file
 sudo tee /etc/systemd/system/alertmanager.service <<EOF
 [Unit]
 Description=Prometheus Alertmanager
@@ -49,10 +64,18 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-# Enable and start it
+# Reload systemd and enable/start Alertmanager
 sudo systemctl daemon-reload
 sudo systemctl enable alertmanager
 sudo systemctl start alertmanager
+
+# Ensure Prometheus is enabled and running
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
+
+# Ensure Node Exporter is enabled and running
+sudo systemctl enable prometheus-node-exporter
+sudo systemctl start prometheus-node-exporter
 
 # Configure Prometheus to scrape Node Exporter and Loki
 echo "Configuring Prometheus..."
@@ -139,31 +162,6 @@ EOF
 
 # Restart Grafana
 sudo systemctl restart grafana-server
-
-# Install and configure Alertmanager
-echo "Installing and configuring Alertmanager..."
-cat <<EOF | sudo tee /etc/alertmanager/alertmanager.yml
-global:
-  resolve_timeout: 5m
-
-route:
-  group_by: ['alertname']
-  group_wait: 30s
-  group_interval: 5m
-  repeat_interval: 3h
-  receiver: 'telegram'
-
-receivers:
-  - name: 'telegram'
-    telegram_configs:
-    - bot_token: '${BOT_TOKEN}'
-      chat_id: '${CHAT_ID}'
-      send_resolved: true
-EOF
-
-# Ensure Alertmanager is enabled and running
-sudo systemctl enable alertmanager
-sudo systemctl start alertmanager
 
 # Final message
 echo "Monitoring setup is complete! Prometheus, Node Exporter, Auditd, Grafana, and Alertmanager are configured and running."
