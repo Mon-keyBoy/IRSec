@@ -11,7 +11,20 @@ BOT_TOKEN="$1"
 CHAT_ID="$2"
 
 # Update the system and install necessary packages
-sudo apt-get update && sudo apt-get install -y curl wget git prometheus prometheus-node-exporter auditd grafana alertmanager
+sudo apt-get update && sudo apt-get install -y curl wget git prometheus prometheus-node-exporter auditd 
+#get grafana
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+sudo wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install -y grafana
+sudo /bin/systemctl start grafana-server
+# get alertmanager
+mkdir -p ~/alertmanager && cd ~/alertmanager
+wget https://github.com/prometheus/alertmanager/releases/download/v0.26.0/alertmanager-0.26.0.linux-amd64.tar.gz 
+tar -xvf alertmanager-0.26.0.linux-amd64.tar.gz 
+sudo mv alertmanager-0.26.0.linux-amd64/alertmanager /usr/local/bin/
+sudo mv alertmanager-0.26.0.linux-amd64/amtool /usr/local/bin/
 
 # Ensure Prometheus is enabled and running
 sudo systemctl enable prometheus
@@ -20,6 +33,26 @@ sudo systemctl start prometheus
 # Ensure Node Exporter is enabled and running
 sudo systemctl enable prometheus-node-exporter
 sudo systemctl start prometheus-node-exporter
+
+# configure alertmanager
+sudo tee /etc/systemd/system/alertmanager.service <<EOF
+[Unit]
+Description=Prometheus Alertmanager
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Enable and start it
+sudo systemctl daemon-reload
+sudo systemctl enable alertmanager
+sudo systemctl start alertmanager
 
 # Configure Prometheus to scrape Node Exporter and Loki
 echo "Configuring Prometheus..."
