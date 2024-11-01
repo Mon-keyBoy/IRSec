@@ -24,12 +24,31 @@ essential_packages=( # List of essential packages to reinstall (can be customize
     "sudo"              # Allows users to run commands as root
     "openssl"           # Cryptographic toolkit
     "openssh-server"    # SSH server for remote access
-    "gnupg"             # GnuPG for signing and encryption
     "util-linux"        # System utilities (fdisk, mount, etc.)
     "procps"            # Utilities related to processes (ps, top, etc.)
     "net-tools"         # Network tools (ifconfig, netstat, etc.)
     "iptables"          # Firewall management tool
     "passwd"            # Password management utility
+    "gnupg"             # GnuPG for signing and encryption
+    "findutils"         # File finding utilities (find command)
+    "grep"              # Searches for patterns in files
+    "gawk"              # Text processing
+    "sed"               # Stream editor for text manipulation
+    "curl"              # Data transfer tool
+    "wget"              # Data transfer tool
+    "tar"               # Archiving utility
+    "gzip"              # Compression utility
+    "login"             # User login tools (whoami, who)
+    "cron"              # Task scheduler
+    "systemd"           # System and service manager (includes systemctl)
+    "openssh-client"    # SSH client for secure access
+    "mount"             # Filesystem mount tools
+    "acl"               # Access control utilities (chmod, chown)
+    "inetutils-ping"    # Ping utility
+    "lsb-release"       # System information (uname)
+    "iproute2"          # Networking utilities (ip, ss)
+
+
 
 )
 
