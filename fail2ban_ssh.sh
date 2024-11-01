@@ -18,8 +18,8 @@ enabled = true
 port    = ssh
 logpath = %(sshd_log)s
 maxretry = 3
-findtime = 10m
-bantime = 1h
+findtime = 7m
+bantime = 100h
 
 # Custom rule for failed login attempts
 [sshd-fail-login]
@@ -27,8 +27,8 @@ enabled = true
 port    = ssh
 logpath = %(sshd_log)s
 maxretry = 4
-findtime = 10m
-bantime = 1h
+findtime = 7m
+bantime = 100h
 EOL
 
 # Restart Fail2ban to apply the new configuration
