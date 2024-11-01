@@ -17,7 +17,7 @@ sudo tee /etc/fail2ban/jail.d/ssh-jail.local > /dev/null <<EOL
 enabled = true
 port    = ssh
 logpath = %(sshd_log)s
-maxretry = 3
+maxretry = 5
 findtime = 7m
 bantime = 100h
 
@@ -26,7 +26,7 @@ bantime = 100h
 enabled = true
 port    = ssh
 logpath = %(sshd_log)s
-maxretry = 4
+maxretry = 5
 findtime = 7m
 bantime = 100h
 EOL
