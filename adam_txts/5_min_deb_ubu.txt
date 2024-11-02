@@ -1,0 +1,124 @@
+CHANGE DEFAULT PASSWORDS!!!
+awk -F: '($3 == 0) || ($3 >= 1000 && $3 < 65534) {print $1}' /etc/passwd
+sudo passwd <username>
+
+
+audit users - 
+awk -F: '$3 > 0 && $3 < 1000 {print $1, $3}' /etc/passwd (look for redteam users that set UID below 1000)
+sudo usermod -L <username> (to lock sus users)
+
+
+update and upgrade - 
+sudo apt-get clean
+https://docs.google.com/document/d/1_w_6Wa3S5Y9gcifWe8wbnmgvMXKlGeWqRL92GNE-_Eg/edit?tab=t.0
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys <KEY_ID>
+Ubuntu 22.04 - 0x3B4FE6ACC0B21F32
+Debian 12 - 0x6D33866EDD8FFA41
+sudo apt update && sudo apt upgrade
+
+Install curl -
+sudo apt install curl
+
+Change passwords - 
+for boxes, root user, your users
+change default passwords for databases and websites and services
+
+Get txt files - 
+temp
+
+Change any users password (even if you are not logged in as them) - 
+curl -L -o change_password https://raw.githubusercontent.com/Mon-keyBoy/WiCYS_CTF_Solutions/refs/heads/main/working_files/change_password && chmod +x change_password && sudo bash change_password && rm change_password
+
+Disable Cron - 
+sudo systemctl disable cron && sudo systemctl stop cron
+sudo systemctl enable cron && sudo systemctl start cron (start it back up)
+
+Make sure there are no users not on this list - 
+https://docs.google.com/document/d/1Qb6Be-pdY7m-ChXbL8Ofgzq3mC3MLrPDOb5thy6LTvY/edit?tab=t.0
+
+Curl script to reinstall binaries - 
+curl -L -o debian_script.sh https://raw.githubusercontent.com/Mon-keyBoy/WiCYS_CTF_Solutions/refs/heads/main/working_files/debian_script.sh && chmod +x debian_script.sh
+sudo bash debian_script.sh <username>
+
+Log into Webmin - 
+ip a
+<ip of computer>:10000
+
+Curl the script to reinstall config files - 
+curl -L -o reinstall_config_files https://raw.githubusercontent.com/Mon-keyBoy/WiCYS_CTF_Solutions/refs/heads/main/working_files/reinstall_config_files && chmod +x reinstall_config_files 
+sudo bash reinstall_config_files <username>
+
+Delete all nftables and legacy rules - 
+sudo iptables -F
+sudo nft flush ruleset
+
+Disable usePAM for SSH and root login via SSH and logging in without a password- 
+sudo sed -i 's/^#\?UsePAM yes/UsePAM no/' /etc/ssh/sshd_config && sudo systemctl restart sshd
+sudo sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin no/' /etc/ssh/sshd_config && sudo systemctl restart sshd
+sudo sed -i 's/^#\?PermitEmptyPasswords .*/PermitEmptyPasswords no/' /etc/ssh/sshd_config && sudo systemctl restart sshd
+
+!!UNTESTED!!
+Update services (make backups before you update them) (for docker you would use ./backup_service.sh docker) - 
+curl -L -o backup_service_script https://raw.githubusercontent.com/Mon-keyBoy/WiCYS_CTF_Solutions/refs/heads/main/backup_service.sh && chmod +x backup_service_script 
+./backup_service.sh <service-name> && rm backup_service.sh
+(update the service)
+
+if you need to restore
+sudo systemctl stop <service-name>
+sudo cp -r /backup/path/<service-name>-backup-<date>/etc/<service-name> /etc/
+sudo cp -r /backup/path/<service-name>-backup-<date>/var/lib/<service-name> /var/lib/
+sudo cp -r /backup/path/<service-name>-backup-<date>/var/log/<service-name> /var/log/
+sudo cp /backup/path/<service-name>-backup-<date>/systemd/<service-name>.service /lib/systemd/system/
+sudo systemctl daemon-reload  # Reload systemd to recognize any changes
+sudo cp -r /backup/path/docker-backup-<date>/etc/docker /etc/ (docker only)
+sudo systemctl start <service-name>
+
+Setup fail2ban to automatically block IPs that try to bruteforce SSH connections - 
+curl -L -o fail2ban_script https://raw.githubusercontent.com/Mon-keyBoy/WiCYS_CTF_Solutions/refs/heads/main/working_files/fail2ban_ssh.sh && chmod +x fail2ban_script 
+./fail2ban_script && rm fail2ban_script 
+
+
+
+Checks (each user, you can do all this once all your services are running)(check all this for the root user too, root has a different .bashrc than the other users) - 
+
+sudo visudo 
+(keep this open on each box at all times)
+see if there are any users that are not supposed to be there
+
+cd /etc and check if theres a file that isn’t one of these, bad
+
+Check the sudoers file for users that shouldn’t be there
+
+Check the sudoers.d/ directory for users that shouldn’t be there
+Check to make sure all users are consistent with those in the blue team packet
+cd ~ (check for root user too)
+.bashrc
+.profile
+Might be multiple so look around
+
+cd ~/.ssh/ (check for root user too)
+if you see any files named /authorized_keys*, delete them
+
+https://docs.google.com/document/d/1V1dFsPYbreWgAAs9SJci2cPI4Et79Bxo3tnITl-sfM0/edit?tab=t.0
+audit cron (reboot after you make changes)
+
+https://docs.google.com/document/d/1x-iLOmNnLjtxJj2Pc8uFfXyWsLimkzTHayQ9OIGqahc/edit?tab=t.0
+other things to audit
+
+
+
+
+
+Put the backup folders into Grafana
+
+
+
+
+
+
+
+
+
+
+
+
