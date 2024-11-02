@@ -1,0 +1,87 @@
+Looking as users and their groups - 
+id [user number/name]: lists users on the current device, given a user number is will display info only on that user 
+ex: id -> lists users, id 0 -> root info, id nobody -> nobody info,id sshd
+
+Finding and removing SUID binaries put by redteam - 
+find / \( -perm -4000 -o -perm -2000 \) -type f -exec file {} \; 2>/dev/null | grep -v ELF (to look for them)
+chmod a-s /path/to/binary (remove SUID)
+
+Blocking an IP with IPtables - 
+sudo iptables -A INPUT -s <IP> -j DROP
+
+Getting ping back up - 
+echo "0" > /proc/sys/net/ipv4/icmp_echo_ignore_all
+
+Check if services are running - 
+systemctl status <service>
+
+Restart a service if its down - 
+systemctl restart <service>
+
+List all failed services - 
+sudo systemctl --failed
+
+List all running services (look for ones that shouldn’t be running) (like ping since its not a service) -
+sudo systemctl list-units --type=service
+sudo systemctl list-units --type=service --state=running
+
+List running processes - 
+ps Command: The ps command lists running processes.
+
+ps aux
+
+a: shows processes for all users
+u: displays the process owner
+x: shows processes not attached to a terminal
+
+Always have this open - 
+sudo visudo
+
+Remove a user from a group (debian only) - 
+sudo deluser <username> <groupname>
+
+Find the process ID of a given process - 
+sudo pgrep <process_name>
+
+Kill/Disable/Stop a given process ID - 
+sudo pkill -9(SIGTERM) <PID>
+
+Killing a process does not disable it, meaning that if it is configured right, it will start right back up
+sudo systemctl disable <service-name> (then kill/stop it)
+sudo systemctl stop <service-name> 
+
+Find and kill the PID of a given process - 
+kill $(pgrep <process_name>)
+
+Looking for bad/altered files - 
+sudo apt install debsums
+sudo debsums | grep -v 'OK$' 
+
+If you try to modify files and it says operation not permitted - 
+lsattr (lists all permissions on the file like i for immutable)
+sudo chattr -i <filename> (makes the file mutable again)
+
+To lock users (change shadow hash) - 
+sudo usermod -L <username>
+sudo usermod -U <username> (To unlock)
+
+netstat - 
+netstat -tulpen					shows only TCP/UDP connections with numeric IPs/ports, making it easier to spot unfamiliar or suspicious connections quickly.
+ss -peanut					more detailed version of ^^
+netstat -tulpen | grep ‘:22’			if you see many connections form the same IP, it's probably a brute-force attack, block that IP
+watch -n 2 'netstat -tulpen			watch -n 2 will refresh the netstat output every 2 seconds, helping you monitor connections in near real-time.
+netstat -ant | grep ESTABLISHED		shows established tcp connections
+
+To check banned IPs with fail2ban - 
+sudo fail2ban-client status sshd
+
+Getting rid of LD_preload rootkit - 
+sudo busybox rm /etc/ld.so.preload
+go into etc to look for the LD-preload(s)
+
+
+Accessing Webmin - 
+web GUI for IPtables
+<ip of computer>:10000
+login credentials of the box
+
